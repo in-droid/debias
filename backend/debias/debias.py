@@ -38,7 +38,7 @@ class PoliticalResultsModel(BaseModel):
 parser_output = PydanticOutputParser(pydantic_object=PoliticalResultsModel)
 
 # Define the prompt template using the provided transcript and OCR content.
-PROMPT_LMM = """
+PROMPT_BIAS_TEMPLATE = """
 You are a politically unbiased assistant. In text below I will provide you with a transcript from a video in `VIDEO_TRANSCRIPT` 
 and some OCR content from the video in `OCR_CONTENT`. Your task is to qualify the political bias if present and give a score from 0 to 10 for each of the following categories:
 - Left
@@ -62,9 +62,9 @@ OCR_CONTENT: {ocr_content}
 """
 
 # Prepare the prompt template with the actual input variable names.
-prompt = PromptTemplate(
+prompt_bias = PromptTemplate(
     input_variables=["video_transcript", "ocr_content"],
-    template=PROMPT_LMM,
+    template=PROMPT_BIAS_TEMPLATE,
 )
 
 # Initialize the AzureChatOpenAI model with your Azure credentials
@@ -78,9 +78,9 @@ llm = AzureChatOpenAI(
 )
 
 # Set up the LangChain LLMChain with the prompt and the Azure LLM
-chain = LLMChain(
+chain_bias = LLMChain(
     llm=llm,
-    prompt=prompt,
+    prompt=prompt_bias,
     # output_parser=parser_output,
     verbose=True,
 )
@@ -100,7 +100,7 @@ def get_video_bias(video_transcript: str, ocr_content:str="")-> dict:
         dict: The response from the Azure OpenAI model.
     """
     # Run the chain which will format the prompt, send it to your Azure model, and retrieve the response.
-    response = chain.run(video_transcript=video_transcript, ocr_content=ocr_content)
+    response = chain_bias.run(video_transcript=video_transcript, ocr_content=ocr_content)
     
     return json.loads(response)
 
