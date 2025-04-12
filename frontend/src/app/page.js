@@ -16,6 +16,9 @@ export default function Home() {
   const [videoComplete, setVideoComplete] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [audioSummary, setAudioSummary] = useState([]);
+  const [politicalPosition, setPoliticalPosition] = useState('60%');
+  const [politicalDescription, setPoliticalDescription] = useState('Based on our analysis, this content leans slightly towards the right of the political spectrum');
+  const [factChecks, setFactChecks] = useState([]);
   const playerRef = useRef(null);
   const resultsSectionRef = useRef(null);
 
@@ -96,22 +99,48 @@ export default function Home() {
 
   const generateAudioSummary = async () => {
     try {
-      const response = await fetch('/audio_context/vaccine.txt');
+      const response = await fetch('/audio_context/output.txt');
       const text = await response.text();
       // Split the text into lines and filter for bullet points
-      const bulletPoints = text.split('\n')
-        .filter(line => line.trim().startsWith('*'))
-        .map(line => {
-          // Remove the asterisk and trim
-          let content = line.trim().substring(1).trim();
-          // Convert markdown bold to HTML
-          content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-          return content;
+      const bulletPoints = text.split('\n\n')
+        .filter(line => line.trim())
+        .map((line, index) => {
+          // Split the line into title and content
+          const [title, content] = line.split('::');
+          // Convert markdown bold to HTML and wrap in a div
+          const formattedTitle = title.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          return `
+            <div class="mb-4 border-b border-gray-200">
+              <button 
+                onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')"
+                class="w-full flex items-center justify-between py-2 text-left hover:bg-gray-50 px-4 rounded-lg transition-colors"
+              >
+                <div class="font-bold">${formattedTitle}</div>
+                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div class="px-4 pb-4 hidden">
+                ${content.trim()}
+              </div>
+            </div>
+          `;
         });
       setAudioSummary(bulletPoints);
     } catch (error) {
       console.error('Error reading audio context:', error);
       setAudioSummary(['Error loading audio context']);
+    }
+  };
+
+  const generateFactChecks = async () => {
+    try {
+      const response = await fetch('/fact_checks.json');
+      const data = await response.json();
+      setFactChecks(data.facts);
+    } catch (error) {
+      console.error('Error reading fact checks:', error);
+      setFactChecks([]);
     }
   };
 
@@ -138,6 +167,8 @@ export default function Home() {
       
       // Generate audio summary
       generateAudioSummary();
+      // Generate fact checks
+      generateFactChecks();
       
       // Simulate audio analysis completion after 3 seconds
       setTimeout(() => {
@@ -149,6 +180,8 @@ export default function Home() {
       setTimeout(() => {
         setIsVideoLoading(false);
         setVideoComplete(true);
+        setPoliticalPosition('80%');
+        setPoliticalDescription('Based on our analysis, this content leans towards the right of the political spectrum');
       }, 7000);
     }
   };
@@ -283,11 +316,11 @@ export default function Home() {
                           {/* Position Indicator */}
                           <div 
                             className="absolute top-0 w-4 h-4 bg-black rounded-full -mt-1 transform -translate-x-1/2"
-                            style={{ left: '60%' }}
+                            style={{ left: politicalPosition }}
                           ></div>
                         </div>
                         <p className="text-gray-700 text-center mt-4">
-                          Based on our analysis, this content leans slightly towards the right of the political spectrum
+                          {politicalDescription}
                         </p>
                       </div>
                     ) : null}
@@ -303,26 +336,20 @@ export default function Home() {
                     ) : videoComplete ? (
                       <div className="space-y-6">
                         <ul className="space-y-4">
-                          <li className="border-l-4 border-yellow-400 pl-4 py-2">
-                            <span className="text-sm font-semibold text-gray-500">02:15</span>
-                            <p className="text-gray-900 mt-1">
-                              <span className="font-semibold">Claim:</span> "The economy grew by 10% last year"
-                            </p>
-                            <p className="text-red-600 mt-1">
-                              <span className="font-semibold">Correction:</span> Official economic data shows 3.2% growth
-                            </p>
-                            <a href="#" className="text-blue-600 hover:underline text-sm mt-1 block">Source: Economic Bureau Statistics</a>
-                          </li>
-                          <li className="border-l-4 border-yellow-400 pl-4 py-2">
-                            <span className="text-sm font-semibold text-gray-500">05:30</span>
-                            <p className="text-gray-900 mt-1">
-                              <span className="font-semibold">Claim:</span> "This policy has never been tried before"
-                            </p>
-                            <p className="text-red-600 mt-1">
-                              <span className="font-semibold">Correction:</span> Similar policies were implemented in 2015
-                            </p>
-                            <a href="#" className="text-blue-600 hover:underline text-sm mt-1 block">Source: Government Policy Archive</a>
-                          </li>
+                          {factChecks.map((fact, index) => (
+                            <li key={index} className="border-l-4 border-yellow-400 pl-4 py-2">
+                              <span className="text-sm font-semibold text-gray-500">{fact.timestamp}</span>
+                              <p className="text-gray-900 mt-1">
+                                <span className="font-semibold">Claim:</span> "{fact.claim}"
+                              </p>
+                              <p className="text-red-600 mt-1">
+                                <span className="font-semibold">Correction:</span> {fact.correction}
+                              </p>
+                              <a href={fact.sourceUrl} className="text-blue-600 hover:underline text-sm mt-1 block">
+                                Source: {fact.source}
+                              </a>
+                            </li>
+                          ))}
                         </ul>
                       </div>
                     ) : null}

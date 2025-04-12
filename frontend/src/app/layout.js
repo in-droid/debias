@@ -15,7 +15,10 @@ export const metadata = {
   title: "DeBias",
   description: "Analyze YouTube content for factual accuracy and political bias",
   icons: {
-    icon: '/logo-black.png',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/logo-transparent.png', type: 'image/png' }
+    ],
   },
 };
 

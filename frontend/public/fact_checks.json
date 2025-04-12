@@ -1,0 +1,53 @@
+{
+  "facts": [
+    {
+      "timestamp": "00:00:06",
+      "claim": "China, …67 percent. That's tariffs charged to the USA…",
+      "correction": "According to WTO and USTR data, China's average applied tariff on U.S. goods is roughly 7–8% for many product categories, not 67%.",
+      "source": "WTO China Tariff Profile",
+      "sourceUrl": "https://www.wto.org/english/tratop_e/tariffs_e/tariff_profiles_e/china_profile_e.htm"
+    },
+    {
+      "timestamp": "00:01:11",
+      "claim": "Vietnam …90 percent",
+      "correction": "WTO data show that Vietnam’s tariffs on U.S. products generally fall in the low single digits or low teens—not 90%.",
+      "source": "WTO Vietnam Tariff Profile",
+      "sourceUrl": "https://www.wto.org/english/tratop_e/tariffs_e/tariff_profiles_e/vietnam_profile_e.htm"
+    },
+    {
+      "timestamp": "00:01:31",
+      "claim": "Taiwan …64 percent",
+      "correction": "WTO tariff data indicate that Taiwan’s average import duties on U.S. products are very low (around 2–3%), not 64%.",
+      "source": "WTO Taiwan Tariff Profile",
+      "sourceUrl": "https://www.wto.org/english/tratop_e/tariffs_e/tariff_profiles_e/taiwan_profile_e.htm"
+    },
+    {
+      "timestamp": "00:01:55",
+      "claim": "Japan, 46 percent",
+      "correction": "Japan’s overall tariff rates for most industrial products average around 2–3%. While certain sensitive sectors like agriculture may have higher rates, 46% is not representative.",
+      "source": "WTO Japan Tariff Profile",
+      "sourceUrl": "https://www.wto.org/english/tratop_e/tariffs_e/tariff_profiles_e/japan_profile_e.htm"
+    },
+    {
+      "timestamp": "00:02:21",
+      "claim": "India, …52 percent",
+      "correction": "India’s overall MFN tariff rates generally fall around 10–15% for a broad range of goods. Some specific categories may be higher, but not an across-the-board 52%.",
+      "source": "WTO India Tariff Profile",
+      "sourceUrl": "https://www.wto.org/english/tratop_e/tariffs_e/tariff_profiles_e/india_profile_e.htm"
+    },
+    {
+      "timestamp": "00:03:51",
+      "claim": "Cambodia…97 percent",
+      "correction": "Cambodia’s average tariff rate is typically very low (ranging from 0–5%), not 97%.",
+      "source": "WTO Cambodia Tariff Profile",
+      "sourceUrl": "https://www.wto.org/english/tratop_e/tariffs_e/tariff_profiles_e/cambodia_profile_e.htm"
+    },
+    {
+      "timestamp": "00:09:33",
+      "claim": "Effective at midnight, we will impose a 25 percent tariff on all foreign-made automobiles.",
+      "correction": "While discussions on auto tariffs have been prominent, no official U.S. policy implemented a uniform 25% tariff on all imported automobiles as stated.",
+      "source": "USTR Official Statements / Reuters",
+      "sourceUrl": "https://ustr.gov"
+    }
+  ]
+}
