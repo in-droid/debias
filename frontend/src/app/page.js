@@ -217,7 +217,7 @@ export default function Home() {
   };
 
   const prevFact = () => {
-    setSlideDirection('left');
+    setSlideDirection('right');
     setCurrentFactIndex((prev) => (prev - 1 + factChecks.length) % factChecks.length);
   };
 
@@ -380,39 +380,50 @@ export default function Home() {
                 </div>
 
                 {/* Right Column - Fact Check */}
-                <div className="bg-gray-50 p-8 rounded-lg shadow-lg flex flex-col justify-center">
-                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Fact Check Results</h2>
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-lg shadow-lg flex flex-col justify-center">
+                  <h2 className="text-2xl font-bold mb-6 text-gray-800">Fact Check Results</h2>
                   {isVideoLoading ? (
                     <div className="flex justify-center items-center h-40">
-                      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+                      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#25cc42]"></div>
                     </div>
                   ) : videoComplete && factChecks.length > 0 ? (
                     <div className="space-y-6 flex-1 flex flex-col justify-center">
                       {/* Fact Content Container with Overlaid Navigation */}
                       <div className="relative">
-                        <div className="bg-white rounded-lg shadow-sm">
+                        <div className="bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-lg border border-gray-100">
                           <div 
                             className={`transform transition-all duration-500 ease-in-out ${
                               slideDirection === 'right' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
                             }`}
                           >
-                            <div className="border-l-4 border-yellow-400 pl-4 py-4 mx-4">
-                              <div className="h-[200px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
-                                <span className="text-sm font-semibold text-gray-500">{factChecks[currentFactIndex].timestamp}</span>
-                                <p className="text-gray-900 mt-2">
-                                  <span className="font-semibold">Claim:</span> "{factChecks[currentFactIndex].claim}"
-                                </p>
-                                <p className="text-red-600 mt-2">
-                                  <span className="font-semibold">Correction:</span> {factChecks[currentFactIndex].correction}
-                                </p>
-                                <a 
-                                  href={factChecks[currentFactIndex].sourceUrl} 
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:underline text-sm mt-2 inline-block"
-                                >
-                                  Source: {factChecks[currentFactIndex].source}
-                                </a>
+                            <div className="border-l-4 border-[#25cc42] pl-6 py-6 mx-4">
+                              <div className="h-[300px] overflow-y-auto pr-4 custom-scrollbar">
+                                <span className="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full inline-block">
+                                  {factChecks[currentFactIndex].timestamp}
+                                </span>
+                                <div className="mt-4 space-y-4">
+                                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    <p className="text-gray-800 font-medium">
+                                      <span className="text-gray-500 font-normal">Claim:</span> "{factChecks[currentFactIndex].claim}"
+                                    </p>
+                                  </div>
+                                  <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                                    <p className="text-red-600">
+                                      <span className="text-red-500 font-medium">Correction:</span> {factChecks[currentFactIndex].correction}
+                                    </p>
+                                  </div>
+                                  <a 
+                                    href={factChecks[currentFactIndex].sourceUrl} 
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1 transition-colors"
+                                  >
+                                    <span>Source: {factChecks[currentFactIndex].source}</span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                  </a>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -421,27 +432,27 @@ export default function Home() {
                         {/* Overlaid Navigation Buttons */}
                         <button
                           onClick={prevFact}
-                          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity"
+                          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center opacity-90 hover:opacity-100 transition-all duration-200 hover:scale-110 hover:shadow-xl group z-10 border border-gray-100"
                           aria-label="Previous fact"
                         >
-                          <svg className="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-[#25cc42] group-hover:text-[#25cc42]/80 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                           </svg>
                         </button>
                         <button
                           onClick={nextFact}
-                          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity"
+                          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center opacity-90 hover:opacity-100 transition-all duration-200 hover:scale-110 hover:shadow-xl group z-10 border border-gray-100"
                           aria-label="Next fact"
                         >
-                          <svg className="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-[#25cc42] group-hover:text-[#25cc42]/80 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                           </svg>
                         </button>
                       </div>
 
                       {/* Progress Indicators and Counter */}
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="flex justify-center gap-1.5">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="flex justify-center gap-2">
                           {factChecks.map((_, index) => (
                             <button
                               key={index}
@@ -449,17 +460,17 @@ export default function Home() {
                                 setSlideDirection(index > currentFactIndex ? 'right' : 'left');
                                 setCurrentFactIndex(index);
                               }}
-                              className={`h-1.5 rounded-full transition-all duration-300 ${
+                              className={`h-2 rounded-full transition-all duration-300 ${
                                 index === currentFactIndex 
-                                  ? 'bg-blue-600 w-6' 
-                                  : 'bg-gray-300 w-1.5 hover:bg-gray-400'
+                                  ? 'bg-gray-600 w-8' 
+                                  : 'bg-gray-300 w-2 hover:bg-gray-400'
                               }`}
                               aria-label={`Go to fact ${index + 1}`}
                             />
                           ))}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          Fact {currentFactIndex + 1} of {factChecks.length}
+                        <div className="text-sm font-medium text-gray-500">
+                          <span className="text-gray-700">{currentFactIndex + 1}</span> / {factChecks.length}
                         </div>
                       </div>
                     </div>
@@ -469,16 +480,16 @@ export default function Home() {
 
               {/* Bottom Section - Audio Summary */}
               <div className="bg-gray-50 p-8 rounded-lg shadow-lg">
-                <h2 className="text-2xl font-bold mb-6 text-gray-900">Audio Context Summary</h2>
+                <h2 className="text-2xl font-bold mb-6 text-gray-800">Audio Context Summary</h2>
                 {isAudioLoading ? (
                   <div className="flex justify-center items-center h-40">
-                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#25cc42]"></div>
                   </div>
                 ) : audioComplete ? (
                   <div className="space-y-4">
                     {audioSummary.map((point, index) => (
-                      <div key={index} className="bg-white rounded-lg p-4 shadow-sm">
-                        <div className="text-gray-900 prose prose-strong:text-gray-900" dangerouslySetInnerHTML={{ __html: point }} />
+                      <div key={index} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                        <div className="text-gray-800 prose prose-strong:text-gray-900 prose-p:leading-relaxed prose-p:my-2" dangerouslySetInnerHTML={{ __html: point }} />
                       </div>
                     ))}
                   </div>
