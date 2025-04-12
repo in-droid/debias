@@ -111,4 +111,4 @@ if __name__ == "__main__":
     # Run the chain which will format the prompt, send it to your Azure model, and retrieve the response.
     response = get_video_bias(video_transcript=video_transcript, ocr_content=ocr_content)
     # Print the response
-    pprint(response)
+    print(response)
