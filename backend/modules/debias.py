@@ -61,6 +61,20 @@ VIDEO_TRANSCRIPT: {video_transcript}
 OCR_CONTENT: {ocr_content}
 """
 
+PROMPT_UNTRUE_TEMPLATE = """
+You are a politically unbiased assistant. In text below I will provide you with a transcript from a video in `VIDEO_TRANSCRIPT`.
+Your task is find and return the statements that could be untrue or misleading.
+Return ONLY JSON JSON object with the following structure:
+{{
+    "statements": <list of statements>,
+    "thoughts": "<explanation>"
+}}
+
+
+The `VIDEO_TRANSCRIPT` is provided below. RETURN ONLY JSON, ALL YOUR THOUGHTS IN THE `thoughts` FIELD, DO NOT RETURN ANY OTHER TEXT.
+VIDEO_TRANSCRIPT: {video_transcript}
+"""
+
 # Prepare the prompt template with the actual input variable names.
 prompt_bias = PromptTemplate(
     input_variables=["video_transcript", "ocr_content"],
