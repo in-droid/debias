@@ -14,6 +14,9 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "DeBias",
   description: "Analyze YouTube content for factual accuracy and political bias",
+  icons: {
+    icon: '/logo-black.png',
+  },
 };
 
 export default function RootLayout({ children }) {

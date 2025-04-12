@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Script from 'next/script';
 
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 export default function Home() {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -14,6 +15,7 @@ export default function Home() {
   const [audioComplete, setAudioComplete] = useState(false);
   const [videoComplete, setVideoComplete] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [audioSummary, setAudioSummary] = useState([]);
   const playerRef = useRef(null);
   const resultsSectionRef = useRef(null);
 
@@ -92,6 +94,27 @@ export default function Home() {
     };
   }, []);
 
+  const generateAudioSummary = async () => {
+    try {
+      const response = await fetch('/audio_context/vaccine.txt');
+      const text = await response.text();
+      // Split the text into lines and filter for bullet points
+      const bulletPoints = text.split('\n')
+        .filter(line => line.trim().startsWith('*'))
+        .map(line => {
+          // Remove the asterisk and trim
+          let content = line.trim().substring(1).trim();
+          // Convert markdown bold to HTML
+          content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          return content;
+        });
+      setAudioSummary(bulletPoints);
+    } catch (error) {
+      console.error('Error reading audio context:', error);
+      setAudioSummary(['Error loading audio context']);
+    }
+  };
+
   const handleProcess = () => {
     const videoId = extractVideoId(youtubeUrl);
     if (videoId) {
@@ -112,6 +135,9 @@ export default function Home() {
       // Start loading animations
       setIsAudioLoading(true);
       setIsVideoLoading(true);
+      
+      // Generate audio summary
+      generateAudioSummary();
       
       // Simulate audio analysis completion after 3 seconds
       setTimeout(() => {
@@ -150,7 +176,8 @@ export default function Home() {
       <div className="relative">
         {/* Navigation */}
         <nav className="flex justify-between items-center px-6 pt-6">
-          <Link href="/" className="text-white text-3xl font-bold hover:text-gray-300 transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-white text-3xl font-bold hover:text-gray-300 transition-colors">
+            <img src="/logo-transparent.png" alt="DeBias Logo" className="h-8 w-auto" />
             DeBias
           </Link>
           <div className="flex gap-6">
@@ -214,9 +241,9 @@ export default function Home() {
           <div ref={resultsSectionRef} className="relative bg-white min-h-screen py-20">
             <div className="max-w-6xl mx-auto px-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Audio Context Section */}
+                {/* Left Column - Audio Context */}
                 <div className="bg-gray-50 p-8 rounded-lg shadow-lg">
-                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Audio Context Analysis</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Audio Context Summary</h2>
                   {isAudioLoading ? (
                     <div className="flex justify-center items-center h-40">
                       <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
@@ -224,43 +251,84 @@ export default function Home() {
                   ) : audioComplete ? (
                     <div className="space-y-4">
                       <ul className="list-disc pl-5 space-y-2 text-gray-900">
-                        <li>Speech patterns analyzed</li>
-                        <li>Emotional tone detected</li>
-                        <li>Keyword frequency identified</li>
-                        <li>Contextual relevance scored</li>
+                        {audioSummary.map((point, index) => (
+                          <li key={index} dangerouslySetInnerHTML={{ __html: point }} />
+                        ))}
                       </ul>
                     </div>
                   ) : null}
                 </div>
 
-                {/* Video Context Section */}
-                <div className="bg-gray-50 p-8 rounded-lg shadow-lg">
-                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Video Context Analysis</h2>
-                  {isVideoLoading ? (
-                    <div className="flex justify-center items-center h-40">
-                      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
-                    </div>
-                  ) : videoComplete ? (
-                    <div className="space-y-4">
-                      <ul className="list-disc pl-5 space-y-2 text-gray-900">
-                        <li>Visual elements processed</li>
-                        <li>Facial expressions analyzed</li>
-                        <li>Scene transitions identified</li>
-                        <li>Visual bias indicators detected</li>
-                      </ul>
-                    </div>
-                  ) : null}
+                {/* Right Column - Political Perspective and Fact Check */}
+                <div className="space-y-8">
+                  {/* Political Spectrum Section */}
+                  <div className="bg-gray-50 p-8 rounded-lg shadow-lg">
+                    <h2 className="text-2xl font-bold mb-6 text-gray-900">Political Perspective Analysis</h2>
+                    {isVideoLoading ? (
+                      <div className="flex justify-center items-center h-40">
+                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+                      </div>
+                    ) : videoComplete ? (
+                      <div className="space-y-6">
+                        {/* Spectrum Visualization */}
+                        <div className="relative">
+                          <div className="h-2 bg-gradient-to-r from-blue-600 via-gray-200 to-red-600 rounded-full"></div>
+                          <div className="flex justify-between text-sm mt-2 text-gray-600">
+                            <span>Far Left</span>
+                            <span>Center Left</span>
+                            <span>Center</span>
+                            <span>Center Right</span>
+                            <span>Far Right</span>
+                          </div>
+                          {/* Position Indicator */}
+                          <div 
+                            className="absolute top-0 w-4 h-4 bg-black rounded-full -mt-1 transform -translate-x-1/2"
+                            style={{ left: '60%' }}
+                          ></div>
+                        </div>
+                        <p className="text-gray-700 text-center mt-4">
+                          Based on our analysis, this content leans slightly towards the right of the political spectrum
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {/* Fact Check Section */}
+                  <div className="bg-gray-50 p-8 rounded-lg shadow-lg">
+                    <h2 className="text-2xl font-bold mb-6 text-gray-900">Fact Check Results</h2>
+                    {isVideoLoading ? (
+                      <div className="flex justify-center items-center h-40">
+                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+                      </div>
+                    ) : videoComplete ? (
+                      <div className="space-y-6">
+                        <ul className="space-y-4">
+                          <li className="border-l-4 border-yellow-400 pl-4 py-2">
+                            <span className="text-sm font-semibold text-gray-500">02:15</span>
+                            <p className="text-gray-900 mt-1">
+                              <span className="font-semibold">Claim:</span> "The economy grew by 10% last year"
+                            </p>
+                            <p className="text-red-600 mt-1">
+                              <span className="font-semibold">Correction:</span> Official economic data shows 3.2% growth
+                            </p>
+                            <a href="#" className="text-blue-600 hover:underline text-sm mt-1 block">Source: Economic Bureau Statistics</a>
+                          </li>
+                          <li className="border-l-4 border-yellow-400 pl-4 py-2">
+                            <span className="text-sm font-semibold text-gray-500">05:30</span>
+                            <p className="text-gray-900 mt-1">
+                              <span className="font-semibold">Claim:</span> "This policy has never been tried before"
+                            </p>
+                            <p className="text-red-600 mt-1">
+                              <span className="font-semibold">Correction:</span> Similar policies were implemented in 2015
+                            </p>
+                            <a href="#" className="text-blue-600 hover:underline text-sm mt-1 block">Source: Government Policy Archive</a>
+                          </li>
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               </div>
-
-              {/* Fact Check Button */}
-              {audioComplete && videoComplete && (
-                <div className="mt-12 text-center">
-                  <button className="px-6 py-3 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors text-base font-medium shadow-sm">
-                    Show Fact Check
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         )}
