@@ -17,8 +17,11 @@ export default function Home() {
   const [showResults, setShowResults] = useState(false);
   const [audioSummary, setAudioSummary] = useState([]);
   const [politicalPosition, setPoliticalPosition] = useState('60%');
-  const [politicalDescription, setPoliticalDescription] = useState('Based on our analysis, this content leans slightly towards the right of the political spectrum');
+  const [politicalDescription, setPoliticalDescription] = useState('');
+  const [politicalBias, setPoliticalBias] = useState(null);
   const [factChecks, setFactChecks] = useState([]);
+  const [currentFactIndex, setCurrentFactIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState('right');
   const playerRef = useRef(null);
   const resultsSectionRef = useRef(null);
 
@@ -144,6 +147,28 @@ export default function Home() {
     }
   };
 
+  const generatePoliticalBias = async () => {
+    try {
+      const response = await fetch('/political_bias.json');
+      const data = await response.json();
+      setPoliticalBias(data);
+      
+      // Calculate position based on scores
+      const total = data.left + data.right + data.center + data.neutral;
+      if (data.neutral > Math.max(data.left, data.right, data.center)) {
+        setPoliticalPosition('50%');
+        setPoliticalDescription('This content appears to be neutral in nature');
+      } else {
+        const weightedPosition = ((data.left * 0) + (data.center * 50) + (data.right * 100)) / 
+                               Math.max(1, data.left + data.center + data.right);
+        setPoliticalPosition(`${weightedPosition}%`);
+        setPoliticalDescription('Based on our analysis, this content leans towards the right of the political spectrum');
+      }
+    } catch (error) {
+      console.error('Error reading political bias:', error);
+    }
+  };
+
   const handleProcess = () => {
     const videoId = extractVideoId(youtubeUrl);
     if (videoId) {
@@ -169,6 +194,8 @@ export default function Home() {
       generateAudioSummary();
       // Generate fact checks
       generateFactChecks();
+      // Generate political bias
+      generatePoliticalBias();
       
       // Simulate audio analysis completion after 3 seconds
       setTimeout(() => {
@@ -180,10 +207,18 @@ export default function Home() {
       setTimeout(() => {
         setIsVideoLoading(false);
         setVideoComplete(true);
-        setPoliticalPosition('80%');
-        setPoliticalDescription('Based on our analysis, this content leans towards the right of the political spectrum');
       }, 7000);
     }
+  };
+
+  const nextFact = () => {
+    setSlideDirection('right');
+    setCurrentFactIndex((prev) => (prev + 1) % factChecks.length);
+  };
+
+  const prevFact = () => {
+    setSlideDirection('left');
+    setCurrentFactIndex((prev) => (prev - 1 + factChecks.length) % factChecks.length);
   };
 
   return (
@@ -272,89 +307,182 @@ export default function Home() {
         {/* Results Section */}
         {showResults && (
           <div ref={resultsSectionRef} className="relative bg-white min-h-screen py-20">
-            <div className="max-w-6xl mx-auto px-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left Column - Audio Context */}
+            <div className="max-w-7xl mx-auto px-4">
+              {/* Top Grid - Political Analysis and Fact Check */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                {/* Left Column - Political Analysis */}
                 <div className="bg-gray-50 p-8 rounded-lg shadow-lg">
-                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Audio Context Summary</h2>
-                  {isAudioLoading ? (
+                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Political Perspective Analysis</h2>
+                  {isVideoLoading ? (
                     <div className="flex justify-center items-center h-40">
                       <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
                     </div>
-                  ) : audioComplete ? (
-                    <div className="space-y-4">
-                      <ul className="list-disc pl-5 space-y-2 text-gray-900">
-                        {audioSummary.map((point, index) => (
-                          <li key={index} dangerouslySetInnerHTML={{ __html: point }} />
+                  ) : videoComplete && politicalBias ? (
+                    <div className="space-y-6">
+                      <div className="relative">
+                        {/* Spectrum Background */}
+                        <div className="h-2 bg-gradient-to-r from-blue-600 via-gray-200 to-red-600 rounded-full"></div>
+                        
+                        {/* Labels */}
+                        <div className="flex justify-between text-sm mt-2 text-gray-600">
+                          <span>Far Left</span>
+                          <span>Center Left</span>
+                          <span>Center</span>
+                          <span>Center Right</span>
+                          <span>Far Right</span>
+                        </div>
+
+                        {/* Position Indicator */}
+                        <div 
+                          className={`absolute top-0 w-4 h-4 bg-black rounded-full -mt-1 transform -translate-x-1/2 transition-all duration-500 ${
+                            politicalBias.neutral > Math.max(politicalBias.left, politicalBias.right, politicalBias.center) 
+                              ? 'bg-gray-500' 
+                              : 'bg-black'
+                          }`}
+                          style={{ left: politicalPosition }}
+                        ></div>
+
+                        {/* Neutral Indicator */}
+                        {politicalBias.neutral > Math.max(politicalBias.left, politicalBias.right, politicalBias.center) && (
+                          <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-600 border border-gray-300">
+                            Neutral Content
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-gray-700 text-center mt-8">
+                        {politicalDescription}
+                      </p>
+
+                      {/* Analysis Thoughts */}
+                      <div className="mt-6 bg-white rounded-lg p-4 border border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Analysis Details</h3>
+                        <p className="text-gray-700">{politicalBias.thoughts}</p>
+                      </div>
+
+                      {/* Score Breakdown */}
+                      <div className="grid grid-cols-4 gap-4 mt-4">
+                        {[
+                          { label: 'Left', score: politicalBias.left },
+                          { label: 'Center', score: politicalBias.center },
+                          { label: 'Right', score: politicalBias.right },
+                          { label: 'Neutral', score: politicalBias.neutral }
+                        ].map(({ label, score }) => (
+                          <div key={label} className="bg-white rounded-lg p-3 text-center border border-gray-200">
+                            <div className="text-sm text-gray-600">{label}</div>
+                            <div className="text-xl font-semibold text-gray-900">{score}</div>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   ) : null}
                 </div>
 
-                {/* Right Column - Political Perspective and Fact Check */}
-                <div className="space-y-8">
-                  {/* Political Spectrum Section */}
-                  <div className="bg-gray-50 p-8 rounded-lg shadow-lg">
-                    <h2 className="text-2xl font-bold mb-6 text-gray-900">Political Perspective Analysis</h2>
-                    {isVideoLoading ? (
-                      <div className="flex justify-center items-center h-40">
-                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
-                      </div>
-                    ) : videoComplete ? (
-                      <div className="space-y-6">
-                        {/* Spectrum Visualization */}
-                        <div className="relative">
-                          <div className="h-2 bg-gradient-to-r from-blue-600 via-gray-200 to-red-600 rounded-full"></div>
-                          <div className="flex justify-between text-sm mt-2 text-gray-600">
-                            <span>Far Left</span>
-                            <span>Center Left</span>
-                            <span>Center</span>
-                            <span>Center Right</span>
-                            <span>Far Right</span>
-                          </div>
-                          {/* Position Indicator */}
+                {/* Right Column - Fact Check */}
+                <div className="bg-gray-50 p-8 rounded-lg shadow-lg flex flex-col justify-center">
+                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Fact Check Results</h2>
+                  {isVideoLoading ? (
+                    <div className="flex justify-center items-center h-40">
+                      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+                    </div>
+                  ) : videoComplete && factChecks.length > 0 ? (
+                    <div className="space-y-6 flex-1 flex flex-col justify-center">
+                      {/* Fact Content Container with Overlaid Navigation */}
+                      <div className="relative">
+                        <div className="bg-white rounded-lg shadow-sm">
                           <div 
-                            className="absolute top-0 w-4 h-4 bg-black rounded-full -mt-1 transform -translate-x-1/2"
-                            style={{ left: politicalPosition }}
-                          ></div>
+                            className={`transform transition-all duration-500 ease-in-out ${
+                              slideDirection === 'right' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
+                            }`}
+                          >
+                            <div className="border-l-4 border-yellow-400 pl-4 py-4 mx-4">
+                              <div className="h-[200px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
+                                <span className="text-sm font-semibold text-gray-500">{factChecks[currentFactIndex].timestamp}</span>
+                                <p className="text-gray-900 mt-2">
+                                  <span className="font-semibold">Claim:</span> "{factChecks[currentFactIndex].claim}"
+                                </p>
+                                <p className="text-red-600 mt-2">
+                                  <span className="font-semibold">Correction:</span> {factChecks[currentFactIndex].correction}
+                                </p>
+                                <a 
+                                  href={factChecks[currentFactIndex].sourceUrl} 
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline text-sm mt-2 inline-block"
+                                >
+                                  Source: {factChecks[currentFactIndex].source}
+                                </a>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-gray-700 text-center mt-4">
-                          {politicalDescription}
-                        </p>
-                      </div>
-                    ) : null}
-                  </div>
 
-                  {/* Fact Check Section */}
-                  <div className="bg-gray-50 p-8 rounded-lg shadow-lg">
-                    <h2 className="text-2xl font-bold mb-6 text-gray-900">Fact Check Results</h2>
-                    {isVideoLoading ? (
-                      <div className="flex justify-center items-center h-40">
-                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+                        {/* Overlaid Navigation Buttons */}
+                        <button
+                          onClick={prevFact}
+                          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity"
+                          aria-label="Previous fact"
+                        >
+                          <svg className="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={nextFact}
+                          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity"
+                          aria-label="Next fact"
+                        >
+                          <svg className="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
                       </div>
-                    ) : videoComplete ? (
-                      <div className="space-y-6">
-                        <ul className="space-y-4">
-                          {factChecks.map((fact, index) => (
-                            <li key={index} className="border-l-4 border-yellow-400 pl-4 py-2">
-                              <span className="text-sm font-semibold text-gray-500">{fact.timestamp}</span>
-                              <p className="text-gray-900 mt-1">
-                                <span className="font-semibold">Claim:</span> "{fact.claim}"
-                              </p>
-                              <p className="text-red-600 mt-1">
-                                <span className="font-semibold">Correction:</span> {fact.correction}
-                              </p>
-                              <a href={fact.sourceUrl} className="text-blue-600 hover:underline text-sm mt-1 block">
-                                Source: {fact.source}
-                              </a>
-                            </li>
+
+                      {/* Progress Indicators and Counter */}
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="flex justify-center gap-1.5">
+                          {factChecks.map((_, index) => (
+                            <button
+                              key={index}
+                              onClick={() => {
+                                setSlideDirection(index > currentFactIndex ? 'right' : 'left');
+                                setCurrentFactIndex(index);
+                              }}
+                              className={`h-1.5 rounded-full transition-all duration-300 ${
+                                index === currentFactIndex 
+                                  ? 'bg-blue-600 w-6' 
+                                  : 'bg-gray-300 w-1.5 hover:bg-gray-400'
+                              }`}
+                              aria-label={`Go to fact ${index + 1}`}
+                            />
                           ))}
-                        </ul>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Fact {currentFactIndex + 1} of {factChecks.length}
+                        </div>
                       </div>
-                    ) : null}
-                  </div>
+                    </div>
+                  ) : null}
                 </div>
+              </div>
+
+              {/* Bottom Section - Audio Summary */}
+              <div className="bg-gray-50 p-8 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-bold mb-6 text-gray-900">Audio Context Summary</h2>
+                {isAudioLoading ? (
+                  <div className="flex justify-center items-center h-40">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+                  </div>
+                ) : audioComplete ? (
+                  <div className="space-y-4">
+                    {audioSummary.map((point, index) => (
+                      <div key={index} className="bg-white rounded-lg p-4 shadow-sm">
+                        <div className="text-gray-900 prose prose-strong:text-gray-900" dangerouslySetInnerHTML={{ __html: point }} />
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
