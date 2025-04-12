@@ -7,6 +7,8 @@ import Script from 'next/script';
 export default function Home() {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [videoTitle, setVideoTitle] = useState('');
+  const [videoAuthor, setVideoAuthor] = useState('');
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [audioComplete, setAudioComplete] = useState(false);
@@ -15,11 +17,47 @@ export default function Home() {
   const playerRef = useRef(null);
   const resultsSectionRef = useRef(null);
 
+  useEffect(() => {
+    // Control body scrolling
+    if (!showResults) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    // Cleanup
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showResults]);
+
   const extractVideoId = (url) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
   };
+
+  const fetchVideoDetails = async (videoId) => {
+    try {
+      const response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+      const data = await response.json();
+      setVideoTitle(data.title);
+      setVideoAuthor(data.author_name);
+    } catch (error) {
+      console.error('Error fetching video details:', error);
+      setVideoTitle('');
+      setVideoAuthor('');
+    }
+  };
+
+  useEffect(() => {
+    const videoId = extractVideoId(youtubeUrl);
+    if (videoId) {
+      fetchVideoDetails(videoId);
+    } else {
+      setVideoTitle('');
+      setVideoAuthor('');
+    }
+  }, [youtubeUrl]);
 
   useEffect(() => {
     // Load YouTube IFrame API
@@ -90,9 +128,9 @@ export default function Home() {
   };
 
   return (
-    <main className="relative min-h-screen">
+    <main className={`relative min-h-screen ${!showResults ? 'overflow-hidden h-screen' : ''}`}>
       {/* YouTube Background */}
-      <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-screen">
+      <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen">
         <div
           id="youtube-player"
           style={{
@@ -100,7 +138,7 @@ export default function Home() {
             top: 0,
             left: 0,
             width: '100%',
-            height: '100vh',
+            height: '100%',
             pointerEvents: 'none',
             objectFit: 'cover',
           }}
@@ -116,12 +154,12 @@ export default function Home() {
             DeBias
           </Link>
           <div className="flex gap-6">
-            <Link href="/about" className="text-white/80 hover:text-white transition-colors">
-              About
-            </Link>
-            <Link href="/contact" className="text-white/80 hover:text-white transition-colors">
+            <div className="text-white/80 hover:text-white transition-colors cursor-pointer">
+              About our mission
+            </div>
+            <div className="text-white/80 hover:text-white transition-colors cursor-pointer">
               Contact
-            </Link>
+            </div>
           </div>
         </nav>
 
@@ -133,33 +171,41 @@ export default function Home() {
           <p className="text-xl md:text-2xl text-white/90 max-w-2xl">
             Analyze YouTube content for factual accuracy and political bias
           </p>
-          <div className="mt-8 flex gap-4 items-center">
-            <input
-              type="text"
-              value={youtubeUrl}
-              onChange={(e) => setYoutubeUrl(e.target.value)}
-              placeholder="Enter YouTube URL"
-              className="px-6 py-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 w-96"
-            />
-            <button
-              onClick={handleProcess}
-              className="px-8 py-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300 flex items-center gap-2 group"
-            >
-              <span>Analyze</span>
-              <svg
-                className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <div className="mt-8 flex flex-col items-center gap-4">
+            <div className="flex gap-4 items-center">
+              <input
+                type="text"
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
+                placeholder="Enter YouTube URL"
+                className="px-6 py-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 min-w-[200px] max-w-[600px] w-auto"
+                style={{ width: youtubeUrl.length > 0 ? `${Math.min(Math.max(youtubeUrl.length * 8, 200), 600)}px` : '200px' }}
+              />
+              <button
+                onClick={handleProcess}
+                className="px-8 py-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300 flex items-center gap-2 group"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
-            </button>
+                <span>Analyze</span>
+                <svg
+                  className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  />
+                </svg>
+              </button>
+            </div>
+            {videoTitle && videoAuthor && (
+              <div className="text-white/80 text-sm">
+                {videoTitle} - {videoAuthor}
+              </div>
+            )}
           </div>
         </div>
 
