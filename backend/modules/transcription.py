@@ -26,6 +26,10 @@ def transcribe_audio(file_path):
 
 # Example usage:
 if __name__ == "__main__":
-    file_path = '/home/nikola/Documents/DragonHack/debias/backend/audio/Internet Infrastructure as Fast As Possible.webm'  # or .wav, .m4a etc.
+    file_path = "/home/ivan/FRI/2024-2025/dh_2025/debias/audio/Trump's Speech Highlights： The Least And Most Taxed Countries By Trump.mp3"  # or .wav, .m4a etc.
     transcript = transcribe_audio(file_path)
+    output_file_path = '/home/ivan/FRI/2024-2025/dh_2025/debias/transcript/transcript.txt'
+    with open(output_file_path, 'w') as f:
+        f.write(transcript)
+    print(f"Transcript saved to {output_file_path}")
     print("Transcript:", transcript)
