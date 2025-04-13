@@ -195,6 +195,9 @@ export default function Home() {
   const handleProcess = () => {
     const videoId = extractVideoId(youtubeUrl);
     if (videoId) {
+      // Reset fact index when loading a new video
+      setCurrentFactIndex(0);
+      
       // Only load new video if we have a valid URL
       if (playerRef.current) {
         playerRef.current.loadVideoById({
