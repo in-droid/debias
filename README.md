@@ -10,7 +10,7 @@ It outputs a summary, bias analysis, and verified fact-checks.
 ## Features
 - **Political bias analysis**: The transcript is extracted from the audio file by utilizing a spech-to-text model (Groq). This transcript is sent to our agent for bias analysis.
 - **Fact checking with relavant sources provided**: The audio transcript is split into semantic pieces which are individually fact checked with relevant sources.
-- **Audio summary**: A LLM summarizies the transcript.
+- **Audio summary**: An LLM summarizies the transcript.
 # Architecture
 ![Alt text](img/architecture.svg)
 
