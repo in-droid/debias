@@ -85,7 +85,33 @@ chain_bias = LLMChain(
     verbose=True,
 )
 
-# Example inputs for the transcript and OCR content.
+def parse_jsonl(jsonl_str: str):
+    all_statmenes = []
+    lines = jsonl_str.split('\n')
+    for line in lines[1:-1]:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            all_statmenes.append(json.loads(line))
+        except json.JSONDecodeError:
+            print(f"Invalid JSON: {line}")
+            continue
+
+    return all_statmenes
+
+        # Process the valid JSON object here
+        # For example, you can print it or save it to a file
+        # print(line)
+
+def get_video_fact_check(video_transcript: str, ocr_content:str="")-> dict:
+
+    response = chain_bias.run(video_transcript=video_transcript, ocr_content=ocr_content)
+    # Parse the JSON response
+    parsed_response = parse_jsonl(response)
+    print(parsed_response)
+    return parsed_response
+
 
 
 def get_video_bias(video_transcript: str, ocr_content:str="")-> dict:
@@ -109,6 +135,6 @@ if __name__ == "__main__":
     video_transcript = "The speaker discusses the economic impacts of immigration policies on the middle class."
     ocr_content = "Make America Great Again"
     # Run the chain which will format the prompt, send it to your Azure model, and retrieve the response.
-    response = get_video_bias(video_transcript=video_transcript, ocr_content=ocr_content)
+    # response = get_video_bias(video_transcript=video_transcript, ocr_content=ocr_content)
     # Print the response
-    print(response)
+    # print(response)
