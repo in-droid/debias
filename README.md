@@ -4,7 +4,8 @@ Frequently, these videos present opinions and information as absolute truth, eve
 # Solution
 DebiasIT analyzes YouTube videos by extracting audio, transcribing it, and using LLMs to estimate political bias with reasoning and fact-check key claims using web sources.  
 It outputs a summary, bias analysis, and verified fact-checks.
-
+![Alt text](img/front_page.png)
+![Alt text](img/analysis_page.png)
 
 # Architecture
 ![Alt text](img/architecture.svg)
