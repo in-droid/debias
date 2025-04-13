@@ -1,7 +1,7 @@
 import os
 import json
 import pprint
-
+# import jsonl
 import dotenv
 from langchain.chat_models import AzureChatOpenAI  # This replaces ChatGoogleGenerativeAI
 from langchain import LLMChain
@@ -9,7 +9,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain.schema import HumanMessage  # For sending messages (if needed)
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
-
+from .serper import search_serper
 # Load environment variables (make sure AZURE_API_KEY is set in your environment)
 print(dotenv.load_dotenv('.env'))
 
@@ -61,12 +61,13 @@ VIDEO_TRANSCRIPT: {video_transcript}
 OCR_CONTENT: {ocr_content}
 """
 
-PROMPT_UNTRUE_TEMPLATE = """
+PROMPT_FACT_CHECK_TEMPLATE = """
 You are a politically unbiased assistant. In text below I will provide you with a transcript from a video in `VIDEO_TRANSCRIPT`.
 Your task is find and return the statements that could be untrue or misleading.
-Return ONLY JSON JSON object with the following structure:
+Return ONLY  JSONL objects with the following structure:
 {{
-    "statements": <list of statements>,
+    "statement": <semantic segment that may be untrue>,
+    "timestamp": <timestamp of the statement>,
     "thoughts": "<explanation>"
 }}
 
@@ -79,6 +80,11 @@ VIDEO_TRANSCRIPT: {video_transcript}
 prompt_bias = PromptTemplate(
     input_variables=["video_transcript", "ocr_content"],
     template=PROMPT_BIAS_TEMPLATE,
+)
+
+prompt_fact_check = PromptTemplate(
+    input_variables=["video_transcript"],
+    template=PROMPT_FACT_CHECK_TEMPLATE,
 )
 
 # Initialize the AzureChatOpenAI model with your Azure credentials
@@ -99,7 +105,30 @@ chain_bias = LLMChain(
     verbose=True,
 )
 
+chain_fact_check = LLMChain(
+    llm=llm,
+    prompt=prompt_fact_check,
+    # output_parser=parser_output,
+    verbose=True,
+)
+
 # Example inputs for the transcript and OCR content.
+
+def parse_jsonl(jsonl_str: str):
+    all_statmenes = []
+    lines = jsonl_str.split('\n')
+    for line in lines[1:-1]:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            all_statmenes.append(json.loads(line))
+        except json.JSONDecodeError:
+            print(f"Invalid JSON: {line}")
+            continue
+
+    return all_statmenes
+
 
 
 def get_video_bias(video_transcript: str, ocr_content:str="")-> dict:
@@ -119,10 +148,78 @@ def get_video_bias(video_transcript: str, ocr_content:str="")-> dict:
     return json.loads(response)
 
 
+def get_video_fact_check(video_transcript: str) -> dict:
+    """
+    Function to get the political bias of a video using Azure OpenAI.
+    
+    Args:
+        video_transcript (str): The transcript of the video.
+        
+    Returns:
+        dict: The response from the Azure OpenAI model.
+    """
+    # Run the chain which will format the prompt, send it to your Azure model, and retrieve the response.
+    response = chain_fact_check.run(video_transcript=video_transcript)
+    # print("Response:", response)
+    print("-"*50)
+    # with open("/home/ivan/FRI/2024-2025/dh_2025/debias/backend/RESPONSE.txt", "w") as f:
+    #     f.write(response)
+
+    return parse_jsonl(response)
+    # return [json.loads(line) for line in response.splitlines()]
+
+
+def get_links_for_untrue(statements: list) -> list:
+    """
+    Function to get links for untrue statements.
+    
+    Args:
+        statements (list): List of statements.
+        
+    Returns:
+        list: List of links for untrue statements.
+    """
+    for statement in statements:
+        # Use the Serper API to get links for each statement
+        # For example, you can use the search_serper function defined earlier
+        result = search_serper(statement["statement"])['organic'][0]
+        print("Result:", result)
+        title = result['title']
+        link = result['link']
+        statement["link"] = link
+        statement["title"] = title
+        # Process the result to extract links
+        
+
+    return statements
+
+def rename_columns(data: list) -> list:
+    """
+    Function to rename columns in the data.
+    
+    Args:
+        data (list): List of data.
+        
+    Returns:
+        list: List of renamed data.
+    """
+    result = {}
+    result['facts'] = []
+    for item in data:
+        item["claim"] = item.pop("statement")
+        item["timestamp"] = item.pop("timestamp")
+        item["correction"] = item.pop("thoughts")
+        item["sourceUrl"] = item.pop("link")
+        item["source"] = item.pop("title")
+        result['facts'].append(item)
+    return result
+
+
 if __name__ == "__main__":
     video_transcript = "The speaker discusses the economic impacts of immigration policies on the middle class."
     ocr_content = "Make America Great Again"
     # Run the chain which will format the prompt, send it to your Azure model, and retrieve the response.
-    response = get_video_bias(video_transcript=video_transcript, ocr_content=ocr_content)
+    # response = get_video_bias(video_transcript=video_transcript, ocr_content=ocr_content)
     # Print the response
-    print(response)
+    response = get_video_fact_check(video_transcript=video_transcript)
+    
