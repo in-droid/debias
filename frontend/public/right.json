@@ -1,0 +1,74 @@
+{
+  "bias": {
+    "left": 2,
+    "right": 8,
+    "center": 0,
+    "neutral": 0,
+    "thoughts": "The transcript reflects a strong pro-American trade stance, criticizing foreign countries for their trade practices and tariffs while advocating for increased tariffs on imports to protect American industries. This aligns more with right-leaning economic policies that emphasize nationalism and protectionism. The language used is confrontational towards foreign nations and previous administrations, indicating a clear bias towards right-wing populism. The absence of centrist or leftist viewpoints further solidifies the rightward bias."
+  },
+  "facts": {
+    "facts": [
+      {
+        "claim": "China, 67%. That's tariffs charged to the USA, including currency manipulation and trade barriers.",
+        "timestamp": "00:00:08",
+        "correction": "The claim that China charges 67% in tariffs to the USA is misleading. While there are tariffs and trade barriers, the actual average tariff rate is significantly lower than 67%. This figure may not accurately represent the overall trade relationship.",
+        "sourceUrl": "https://www.bbc.com/news/articles/cgm8vxevyplo",
+        "source": "Are Trump Asia tariffs a 'full-frontal assault' on China? - BBC"
+      },
+      {
+        "claim": "They rip us off. It's so sad to see.",
+        "timestamp": "00:00:57",
+        "correction": "The statement that the European Union 'rips us off' is subjective and lacks specific evidence. Trade relationships are complex and often involve mutual benefits, making such a blanket statement misleading.",
+        "sourceUrl": "https://www.politico.eu/article/donald-trump-europe-trade-tariffs-imports-liberation-day/",
+        "source": "Trump hits 'pathetic' Europe with 20 percent tariffs - Politico.eu"
+      },
+      {
+        "claim": "Vietnam, great negotiators, great people. The problem is they charge us 90 percent.",
+        "timestamp": "00:01:12",
+        "correction": "The assertion that Vietnam charges a 90% tariff is misleading. While Vietnam does have tariffs, the average tariff rate is much lower than 90%, and this statement oversimplifies the trade dynamics.",
+        "sourceUrl": "https://www.newsweek.com/vietnam-offer-remove-tariff-trump-trade-peter-navarro-2056149",
+        "source": "Vietnam's Tariffs Offer Rejected by Trump Adviser\u2014'Not a Negotiation'"
+      },
+      {
+        "claim": "Now we have almost none of it, except the biggest company is coming in.",
+        "timestamp": "00:01:31",
+        "correction": "The claim that the U.S. has 'almost none' of the semiconductor industry is misleading. The U.S. still has a significant presence in semiconductor manufacturing, and this statement may exaggerate the situation.",
+        "sourceUrl": "https://singjupost.com/transcript-of-president-trump-remarks-at-liberation-day-event-april-2-2025/?singlepage=1",
+        "source": "Transcript of President Trump Remarks at 'Liberation Day' Event ..."
+      },
+      {
+        "claim": "They charged us 52 percent. You have to understand we charge them almost nothing for years and years and decades.",
+        "timestamp": "00:04:37",
+        "correction": "The claim that India charges 52% in tariffs is misleading. While India does have high tariffs on certain products, the average tariff rate is lower than 52%, and this statement lacks context.",
+        "sourceUrl": "https://timesofindia.indiatimes.com/world/us/theyre-ripping-us-off-they-understood-it-key-takeaways-from-trumps-tariff-speech/articleshow/119924933.cms",
+        "source": "Key takeaways from Trump's tariff speech - The Times of India"
+      },
+      {
+        "claim": "The United States charges other countries only a 2.4 tariff on motorcycles.",
+        "timestamp": "00:07:55",
+        "correction": "The statement about the U.S. charging a 2.4% tariff on motorcycles is misleading as it does not account for various tariffs that may apply to different types of motorcycles or additional fees.",
+        "sourceUrl": "https://www.washingtonpost.com/politics/2025/04/03/trump-tariffs-falsehoods-fact-checker/",
+        "source": "The false things Trump said about tariffs during his announcement"
+      },
+      {
+        "claim": "As a result of these colossal trade barriers, 81 percent of the cars in South Korea are made in South Korea. Ninety-four percent of the cars in Japan are made in Japan.",
+        "timestamp": "00:08:46",
+        "correction": "While it is true that a high percentage of cars sold in South Korea and Japan are domestically produced, attributing this solely to trade barriers oversimplifies the market dynamics and consumer preferences in these countries.",
+        "sourceUrl": "https://www.chosun.com/english/industry-en/2025/04/03/RNHAOHVBNJHBFD3JADQKINPPWM/",
+        "source": "Trump claims South Korea, Japan block US car exports with trade ..."
+      },
+      {
+        "claim": "None of our companies are allowed to go into other countries.",
+        "timestamp": "00:09:04",
+        "correction": "The assertion that U.S. companies are 'not allowed' to enter other countries is misleading. Many U.S. companies operate internationally, and while there may be barriers, the statement does not reflect the reality of global trade.",
+        "sourceUrl": "https://www.reddit.com/r/legaladviceofftopic/comments/17dfptj/how_is_it_legal_that_companies_from_the_us_can/",
+        "source": "How is it legal that companies from the U.S can have factories in ..."
+      }
+    ]
+  },
+  "audio_summary": {
+    "Trade Imbalances and Tariffs": "The speech details how foreign nations have imposed much higher tariffs on U.S. products—often combined with non-tariff barriers like currency manipulation and intellectual property issues—leading to significant trade imbalances.",
+    "Specific Tariff Rates": "Specific countries are singled out with exact percentages: for example, China at 67%, the EU at 39%, Vietnam at 90%, Taiwan at 64%, Japan at 46%, and India at 52%, with the U.S. planning reciprocal tariffs roughly at half those rates.",
+    "Historical Trade Policy Criticism": "The speaker criticizes longstanding U.S. trade policies for allowing unfair practices, noting that previous administrations charged minimal tariffs while other countries burdened U.S. industries with steep charges."
+  }
+}

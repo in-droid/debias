@@ -39,7 +39,7 @@ export default function Home() {
   }, [showResults]);
 
   const extractVideoId = (url) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
   };
@@ -102,45 +102,59 @@ export default function Home() {
 
   const generateAudioSummary = async () => {
     try {
-      const response = await fetch('/audio_context/output.txt');
-      const text = await response.text();
-      // Split the text into lines and filter for bullet points
-      const bulletPoints = text.split('\n\n')
-        .filter(line => line.trim())
-        .map((line, index) => {
-          // Split the line into title and content
-          const [title, content] = line.split('::');
-          // Convert markdown bold to HTML and wrap in a div
-          const formattedTitle = title.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-          return `
-            <div class="mb-4 border-b border-gray-200">
-              <button 
-                onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')"
-                class="w-full flex items-center justify-between py-2 text-left hover:bg-gray-50 px-4 rounded-lg transition-colors"
-              >
-                <div class="font-bold">${formattedTitle}</div>
-                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div class="px-4 pb-4 hidden">
-                ${content.trim()}
-              </div>
+      const videoId = extractVideoId(youtubeUrl);
+      let jsonFile = '/left.json';
+      
+      if (videoId === 'BAMFozGhrV4') {
+        jsonFile = '/right.json';
+      } else if (videoId === 'Zu4cRSe3nx8') {
+        jsonFile = '/left.json';
+      }
+
+      const response = await fetch(jsonFile);
+      const data = await response.json();
+      
+      // Convert audio summary object to bullet points
+      const bulletPoints = Object.entries(data.audio_summary).map(([title, content]) => {
+        return `
+          <div class="mb-4 border-b border-gray-200">
+            <button 
+              onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')"
+              class="w-full flex items-center justify-between py-2 text-left hover:bg-gray-50 px-4 rounded-lg transition-colors"
+            >
+              <div class="font-bold">${title}</div>
+              <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="px-4 pb-4 hidden">
+              ${content}
             </div>
-          `;
-        });
+          </div>
+        `;
+      });
+      
       setAudioSummary(bulletPoints);
     } catch (error) {
-      console.error('Error reading audio context:', error);
-      setAudioSummary(['Error loading audio context']);
+      console.error('Error reading audio summary:', error);
+      setAudioSummary(['Error loading audio summary']);
     }
   };
 
   const generateFactChecks = async () => {
     try {
-      const response = await fetch('/fact_checks.json');
+      const videoId = extractVideoId(youtubeUrl);
+      let jsonFile = '/left.json';
+      
+      if (videoId === 'BAMFozGhrV4') {
+        jsonFile = '/right.json';
+      } else if (videoId === 'Zu4cRSe3nx8') {
+        jsonFile = '/left.json';
+      }
+
+      const response = await fetch(jsonFile);
       const data = await response.json();
-      setFactChecks(data.facts);
+      setFactChecks(data.facts.facts);
     } catch (error) {
       console.error('Error reading fact checks:', error);
       setFactChecks([]);
@@ -149,20 +163,29 @@ export default function Home() {
 
   const generatePoliticalBias = async () => {
     try {
-      const response = await fetch('/political_bias.json');
+      const videoId = extractVideoId(youtubeUrl);
+      let jsonFile = '/left.json';
+      
+      if (videoId === 'BAMFozGhrV4') {
+        jsonFile = '/right.json';
+      } else if (videoId === 'Zu4cRSe3nx8') {
+        jsonFile = '/left.json';
+      }
+
+      const response = await fetch(jsonFile);
       const data = await response.json();
-      setPoliticalBias(data);
+      setPoliticalBias(data.bias);
       
       // Calculate position based on scores
-      const total = data.left + data.right + data.center + data.neutral;
-      if (data.neutral > Math.max(data.left, data.right, data.center)) {
+      const total = data.bias.left + data.bias.right + data.bias.center + data.bias.neutral;
+      if (data.bias.neutral > Math.max(data.bias.left, data.bias.right, data.bias.center)) {
         setPoliticalPosition('50%');
         setPoliticalDescription('This content appears to be neutral in nature');
       } else {
-        const weightedPosition = ((data.left * 0) + (data.center * 50) + (data.right * 100)) / 
-                               Math.max(1, data.left + data.center + data.right);
+        const weightedPosition = ((data.bias.left * 0) + (data.bias.center * 50) + (data.bias.right * 100)) / 
+                               Math.max(1, data.bias.left + data.bias.center + data.bias.right);
         setPoliticalPosition(`${weightedPosition}%`);
-        setPoliticalDescription('Based on our analysis, this content leans towards the right of the political spectrum');
+        setPoliticalDescription(data.bias.thoughts);
       }
     } catch (error) {
       console.error('Error reading political bias:', error);
@@ -350,11 +373,6 @@ export default function Home() {
                         )}
                       </div>
 
-                      {/* Description */}
-                      <p className="text-gray-700 text-center mt-8">
-                        {politicalDescription}
-                      </p>
-
                       {/* Analysis Thoughts */}
                       <div className="mt-6 bg-white rounded-lg p-4 border border-gray-200">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Analysis Details</h3>
@@ -397,9 +415,13 @@ export default function Home() {
                             }`}
                           >
                             <div className="border-l-4 border-[#25cc42] pl-6 py-6 mx-4">
-                              <div className="h-[300px] overflow-y-auto pr-4 custom-scrollbar">
+                              <div className="h-[400px] overflow-y-auto pr-4 custom-scrollbar">
                                 <span className="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full inline-block">
-                                  {factChecks[currentFactIndex].timestamp}
+                                  {factChecks[currentFactIndex].timestamp ? 
+                                    (typeof factChecks[currentFactIndex].timestamp === 'string' ? 
+                                      factChecks[currentFactIndex].timestamp : 
+                                      factChecks[currentFactIndex].timestamp.join(' - ')) : 
+                                    'Timestamp not available'}
                                 </span>
                                 <div className="mt-4 space-y-4">
                                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">

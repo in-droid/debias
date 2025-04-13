@@ -1,0 +1,39 @@
+curl -X POST http://127.0.0.1:5000/process_video \
+                                                                           -H "Content-Type: application/json" \
+                                                                           -d '{"video_url": "http://youtube.com/shorts/Zu4cRSe3nx8"}'
+
+{
+  "bias": {
+    "center": 1,
+    "left": 7,
+    "neutral": 0,
+    "right": 2,
+    "thoughts": "The transcript contains critical commentary on President Trump's policies, particularly regarding his tariffs, which suggests a left-leaning bias. The use of humor and sarcasm to describe Trump's actions and the implications of his policies indicates a perspective that is likely more aligned with leftist critiques of conservative economic policies. The mention of Cory Booker, a Democratic senator, and the negative portrayal of Elon Musk's actions also contribute to a leftward bias. The overall tone is critical of the right, particularly Trump's administration, while not presenting a balanced view of the political spectrum."
+  },
+  "facts": {
+    "facts": [
+      {
+        "claim": "Elon Musk tried and failed to buy an election in Wisconsin.",
+        "correction": "This statement lacks context and evidence. There is no substantiated information indicating that Elon Musk attempted to buy an election, which could mislead viewers about the nature of political influence and campaign financing.",
+        "source": "Musk hands out $1M payments after Wisconsin court declines to ...",
+        "sourceUrl": "https://apnews.com/article/wisconsin-supreme-court-musk-million-dollar-giveaway-cdea66e0dcbaa53dd183e1d10bee2b35",
+        "timestamp": "[00:00:05 - 00:00:07]"
+      },
+      {
+        "claim": "This will be, indeed, the golden age of America.",
+        "correction": "The term 'golden age' is subjective and can be interpreted in various ways. Claiming it will be a golden age without supporting evidence or context may mislead viewers about the current state of the economy and society.",
+        "source": "Trump makes 'Liberation Day' speech | 'This will be the golden age ...",
+        "sourceUrl": "https://www.youtube.com/watch?v=7iNhvYbLn0Q",
+        "timestamp": "[00:00:21 - 00:00:25]"
+      },
+      {
+        "claim": "...it features an estimate of tariffs charged to the USA by other countries that no one could figure out until a financial journalist realized it was just how much we export to that country minus how much we import from them divided by how much we import...",
+        "correction": "This explanation oversimplifies a complex issue regarding tariffs and trade balances. The statement could mislead viewers into thinking that the calculation of tariffs is as straightforward as described, ignoring the nuances of international trade.",
+        "source": "John Oliver Mocks Trump's Economic Plans on 'Last Week Tonight'",
+        "sourceUrl": "https://www.rollingstone.com/tv-movies/tv-movie-news/john-oliver-trump-economic-plan-last-week-tonight-1235311647/",
+        "timestamp": "[00:01:05 - 00:02:09]"
+      }
+    ]
+  }
+}
+```
