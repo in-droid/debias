@@ -76,6 +76,17 @@ The `VIDEO_TRANSCRIPT` is provided below. RETURN ONLY JSON, ALL YOUR THOUGHTS IN
 VIDEO_TRANSCRIPT: {video_transcript}
 """
 
+PROMPT_SUMMARY_TEMPLATE = """
+You are a helpful assistant. In the text below I will provide you with a transcript from a video in `VIDEO_TRANSCRIPT`.
+Your task is to summarize the video transcript and return a JSON object with the following structure:
+{{
+    "summary": <summary of the video transcript>,
+}}
+The `VIDEO_TRANSCRIPT` is provided below. RETURN ONLY JSON, ALL YOUR THOUGHTS IN THE `thoughts` FIELD, DO NOT RETURN ANY OTHER TEXT.
+VIDEO_TRANSCRIPT: {video_transcript}
+"""
+
+
 # Prepare the prompt template with the actual input variable names.
 prompt_bias = PromptTemplate(
     input_variables=["video_transcript", "ocr_content"],
@@ -85,6 +96,11 @@ prompt_bias = PromptTemplate(
 prompt_fact_check = PromptTemplate(
     input_variables=["video_transcript"],
     template=PROMPT_FACT_CHECK_TEMPLATE,
+)
+
+prompt_summary = PromptTemplate(
+    input_variables=["video_transcript"],
+    template=PROMPT_SUMMARY_TEMPLATE,
 )
 
 # Initialize the AzureChatOpenAI model with your Azure credentials
@@ -108,6 +124,13 @@ chain_bias = LLMChain(
 chain_fact_check = LLMChain(
     llm=llm,
     prompt=prompt_fact_check,
+    # output_parser=parser_output,
+    verbose=True,
+)
+
+chain_summary = LLMChain(
+    llm=llm,
+    prompt=prompt_summary,
     # output_parser=parser_output,
     verbose=True,
 )
@@ -169,6 +192,16 @@ def get_video_fact_check(video_transcript: str) -> dict:
     # return [json.loads(line) for line in response.splitlines()]
 
 
+def get_video_summary(video_transcript: str) -> dict:
+    """
+    Function to get the summary of a video using Azure OpenAI.
+    """
+    response = chain_summary.run(video_transcript=video_transcript)
+
+    return json.loads(response)
+
+
+
 def get_links_for_untrue(statements: list) -> list:
     """
     Function to get links for untrue statements.
@@ -192,6 +225,21 @@ def get_links_for_untrue(statements: list) -> list:
         
 
     return statements
+
+def get_summary(video_transcript: str) -> str:
+    """
+    Function to get a summary of the video transcript.
+    
+    Args:
+        video_transcript (str): The transcript of the video.
+        
+    Returns:
+        str: The summary of the video transcript.
+    """
+    response = chain_summary.run(video_transcript=video_transcript)
+    return json.loads(response)
+
+
 
 def rename_columns(data: list) -> list:
     """

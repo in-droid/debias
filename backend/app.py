@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 
 from modules.dlp_functions import download_audio
 from modules.transcription_subtitles import get_transcript_with_sentence_timestamps
-from modules.debias import get_video_bias, get_video_fact_check, get_links_for_untrue, rename_columns
+from modules.debias import get_video_bias, get_video_fact_check, get_links_for_untrue, rename_columns, get_video_summary
 from modules.serper import search_serper
 from dotenv import load_dotenv
 
@@ -38,15 +38,17 @@ def process_video():
         print(f"Transcript: {transcript}")
         # Step 3: Analyze the transcript for bias.
         bias_results = get_video_bias(transcript)
-        
+        summary = get_video_summary(transcript)        
         # Step 4: Run fact-checking on the transcript.
         fact_check_results = get_video_fact_check(transcript)
         untrue_with_links = get_links_for_untrue(fact_check_results)
         untrue_with_links = rename_columns(untrue_with_links)
 
+
         response = {
             "bias": bias_results,
-            "facts": untrue_with_links,    
+            "facts": untrue_with_links,
+            "summary": summary['summary'],   
         }
         
         return jsonify(response)
